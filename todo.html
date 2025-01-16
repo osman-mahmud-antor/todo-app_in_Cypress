@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .todo-container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .todo-input {
+            width: calc(100% - 40px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .add-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-btn:hover {
+            background-color: #218838;
+        }
+        .todo-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h1>To-Do App</h1>
+        <input type="text" id="todoInput" class="todo-input" placeholder="Enter a new task" />
+        <button id="addBtn" class="add-btn">Add Task</button>
+        <ul id="todoList" class="todo-list"></ul>
+    </div>
+
+    <script>
+        const todoInput = document.getElementById('todoInput');
+        const addBtn = document.getElementById('addBtn');
+        const todoList = document.getElementById('todoList');
+
+        // Load saved todos from localStorage
+        const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+        savedTodos.forEach(todo => addTodoToDOM(todo));
+
+        // Add a new task
+        addBtn.addEventListener('click', () => {
+            const task = todoInput.value.trim();
+            if (task === '') {
+                alert('Task cannot be empty!');
+                return;
+            }
+            const todo = { id: Date.now(), task, completed: false };
+            savedTodos.push(todo);
+            localStorage.setItem('todos', JSON.stringify(savedTodos));
+            addTodoToDOM(todo);
+            todoInput.value = '';
+        });
+
+        // Add a task to the DOM
+        function addTodoToDOM(todo) {
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            li.dataset.id = todo.id;
+
+            const span = document.createElement('span');
+            span.textContent = todo.task;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+            li.appendChild(span);
+            li.appendChild(deleteBtn);
+            todoList.appendChild(li);
+        }
+
+        // Delete a task
+        function deleteTodo(id) {
+            const index = savedTodos.findIndex(todo => todo.id === id);
+            if (index !== -1) {
+                savedTodos.splice(index, 1);
+                localStorage.setItem('todos', JSON.stringify(savedTodos));
+                const itemToRemove = document.querySelector(`li[data-id='${id}']`);
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
